@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>time</title>
+    <link href="style.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="clock">
+        <div class="display">
+            <div class="border-sty">
+                <div class="text-wrap">
+                    6
+                </div>
+                <div class="text-wrap">
+                    7
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="jquery-2.1.4.min.js"></script>
+    <script type="text/javascript">
+        /*
+        let jSettings=JSON.parse("{\"backgroundColor\":\"rgba(1, 1, 1, 1)\",\"len\":5,\"random\":false,\"textStyle\":{\"color\":\"rgba(255, 255, 255, 1)\",\"fontSize\":\"50\",\"fontWeight\":\"bolder\",\"fontFamily\":\"Arial\"}}");
+        */
+        let jSettings=JSON.parse("{\"random\":true,\"len\":\"6\",\"textStyle\":{\"color\":\"rgba(255, 255, 255, 1)\",\"fontSize\":\"50\",\"fontWeight\":\"bolder\",\"fontFamily\":\"Arial\"},\"backgroundColor\":\"rgba(1, 1, 1, 1)\",\"delay\":\"3000\"}");
+        let jData=JSON.parse("[{\"serieName\":\"啊啊啊\",\"seriesData\":[{\"name\":\"2016-06-03\",\"value\":14316}]}]");
+        let dataString=jData[0].seriesData[0].value.toString();
+        class Dataget{
+        	constructor(num){
+        		this._num=num
+        	}
+        	set initData(num){
+        		this._num=num;
+        		dataString=this._num.toString();
+        	}
+        	get initData(){
+        		return this._num;
+        	}
+        }
+        var mydatatemp=new Dataget(jData[0].seriesData[0].value);
+        let len=jSettings.len;
+        let style={
+            backgroundColor:jSettings.backgroundColor,
+            textStyle:{
+                color:jSettings.textStyle.color,
+                fontSize:jSettings.textStyle.fontSize,
+                fontFamily:jSettings.textStyle.fontFamily,
+                fontWeight:jSettings.textStyle.fontWeight
+            }
+        }
+        let rand=jSettings.random;
+        function LoadData(jData)
+        {
+            mydatatemp.initData=jData[0].seriesData[0].value;
+            reflashData();
+        }
+        function LoadSettings(jApperance)
+        {
+        	if(rand!=jApperance.random){
+        		rand=jApperance.random;
+        		if(rand==true){
+        			timer=setInterval(function(){
+		        		mydatatemp.initData=mydatatemp.initData+Math.floor(Math.random()*100-50);
+		            	reflashData();
+		        	},2000);
+        		}
+        		else{
+        			clearInterval(timer);
+        		}
+        		return;
+        	}
+            style.backgroundColor=jApperance.backgroundColor;
+            style.textStyle.fontSize=jApperance.textStyle.fontSize;
+            style.textStyle.color=jApperance.textStyle.color;
+            style.textStyle.fontWeight=jApperance.textStyle.fontWeight;
+            style.textStyle.fontFamily=jApperance.textStyle.fontFamily;
+            if(len!=jApperance.len){
+            	len=jApperance.len;
+            	$('.display').empty();
+	            for(let i=len-1;i>-1;i--){
+	                $('.display').append('<div class="border-sty" id="'+i+'-border'+'"><div class="text-wrap">9</div><div class="text-wrap">0</div></div>');
+	            }
+	            commonRender();
+	            reflashData();
+	            return;
+            }
+            commonRender();
+        }
+
+        function commonRender(){
+            $(".text-wrap").css("font-size",parseInt(style.textStyle.fontSize));
+            $(".text-wrap").css("color",style.textStyle.color);
+            $(".text-wrap").css("font-family",style.textStyle.fontFamily);
+            $(".text-wrap").css("font-weight",style.textStyle.fontWeight);
+            $(".text-wrap").css("background-color",style.backgroundColor);
+        }
+        initContent();
+        LoadSettings(jSettings);
+        //LoadData(jData1);
+/*        if(rand==true){
+            var timer=setInterval(function(){
+                let smallnum=Math.floor(Math.random()*100-50);
+                jData1[0].seriesData[0].value+=smallnum;
+                LoadData(jData1);
+            },3000);
+        }*/
+        let func=[];
+        function reflashData(){
+        	matchLen();
+            for(let i=0;i<dataString.length;i++){
+                func[i]=setInterval(function(){
+                    let str='#'+(dataString.length-i-1)+'-border';
+                    let index=$(str).children('.text-wrap')[1].innerText;
+                    let x=parseInt(index);
+                    let y=(x+1)%10;
+                    if(x==parseInt(dataString[i])){
+                        clearInterval(func[i]);
+                        return;
+                    }
+                    let temp="<div class=\"text-wrap\" style=\"top:0\">"+x+"</div>";
+                    let temp1="<div class=\"text-wrap\" style=\"top:0\">"+y+"</div>";
+                    $(str).empty();
+                    $(str).append(temp);
+                    $(str).append(temp1);
+                    commonRender();
+                    setTimeout(function(){
+                        $(str+' .text-wrap').css('top','-100%');
+                    },10);
+                },150)
+            }
+        }
+        function initContent(){
+        	$('.display').empty();
+	            for(let i=len-1;i>-1;i--){
+	                $('.display').append('<div class="border-sty" id="'+i+'-border'+'"><div class="text-wrap">9</div><div class="text-wrap">0</div></div>');
+	            }
+        }
+        function matchLen(){
+        	if(dataString.length<len){
+	        	while(dataString.length<len){
+	        		dataString='0'+dataString;
+	        	}
+        	}
+        	else{
+	        	dataString=dataString.substr(dataString.length-len,len);
+        	}
+        }
+        reflashData();
+        
+        //LoadData(dataString);
+        if(rand==true){
+        	var timer=setInterval(function(){
+        		mydatatemp.initData=mydatatemp.initData+Math.floor(Math.random()*100-50);
+            	reflashData();
+        	},2000);
+        }
+        
+        </script>
+    </body>
+    </html>
